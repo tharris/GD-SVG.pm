@@ -1,0 +1,8 @@
+^MANIFEST\.
+\bCVS\b
+^blib/
+\bpackaging_utils\b
+TODO
+abandoned_code
+\btest_suite\b
+BioPerl-glyph_status

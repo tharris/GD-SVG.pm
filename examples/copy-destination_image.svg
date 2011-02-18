@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<svg height="600" width="600" xml:xlink="http://www.w3.org/1999/xlink">
+	<polygon id="97-490-420" points="390,320 400,350 430,360 400,370 390,400 380,370 350,360 380,350 390,320" style="stroke-opacity: 1.0; fill-opacity: 0; stroke: rgb(0,0,0); stroke-width: 1; fill: none" />
+	<polygon id="96-490-420" points="390,320 400,350 430,360 400,370 390,400 380,370 350,360 380,350 390,320" style="stroke-opacity: 1.0; fill-opacity: 1.0; stroke: rgb(0,0,255); stroke-width: 1; fill: rgb(0,0,255)" />
+	<polygon id="94-390-420" points="290,320 300,350 330,360 300,370 290,400 280,370 250,360 280,350 290,320" style="stroke-opacity: 1.0; fill-opacity: 0; stroke: rgb(0,0,0); stroke-width: 1; fill: none" />
+	<polygon id="93-390-420" points="290,320 300,350 330,360 300,370 290,400 280,370 250,360 280,350 290,320" style="stroke-opacity: 1.0; fill-opacity: 1.0; stroke: rgb(255,0,0); stroke-width: 1; fill: rgb(255,0,0)" />
+	<polygon id="85-490-320" points="390,220 400,250 430,260 400,270 390,300 380,270 350,260 380,250 390,220" style="stroke-opacity: 1.0; fill-opacity: 1.0; stroke: rgb(0,0,255); stroke-width: 1; fill: rgb(0,0,255)" />
+	<polygon id="84-390-320" points="290,220 300,250 330,260 300,270 290,300 280,270 250,260 280,250 290,220" style="stroke-opacity: 1.0; fill-opacity: 1.0; stroke: rgb(255,0,0); stroke-width: 1; fill: rgb(255,0,0)" />
+	<rect height="80" id="95-450-420" style="stroke-opacity: 1.0; fill-opacity: 0; stroke: rgb(0,0,0); stroke-width: 1; fill: none" width="80" x="350" y="320" />
+	<rect height="80" id="92-350-420" style="stroke-opacity: 1.0; fill-opacity: 0; stroke: rgb(0,0,0); stroke-width: 1; fill: none" width="80" x="250" y="320" />
+	<rect height="600" id="1-0-0" style="stroke-opacity: 1.0; fill-opacity: 0; stroke: rgb(0,0,0); stroke-width: 1; fill: none" width="600" x="0" y="0" /><!-- 
+	Generated using the Perl SVG Module V2.32
+	by Ronan Oger
+	Info: http://www.roasp.com/
+ -->
+</svg>

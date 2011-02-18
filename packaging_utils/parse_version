@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+use strict;
+open IN,"../META.yml" or die;
+open OUT,">GD-SVG.version";
+
+while (<IN>) {
+  chomp;
+  if ($_ =~ /version\:/) {
+    $_ =~ /version\:\s+(.*)/;
+    my $version = $1;
+    my $date = `date +%h-%d-%Y`;
+    my $file = "GD-SVG-$version.tar.gz";
+
+    print OUT $version,", built on $date.<BR>";
+    print OUT "Download $file from "
+	. '<a href="releases/'
+	. $file
+	. '">the local server</a> or '
+	. '<a href="http://cpan.org/authors/id/T/TW/TWH/'
+      	. $file
+	. '">'
+	. "from CPAN</a>";
+    exit;
+  }
+}
