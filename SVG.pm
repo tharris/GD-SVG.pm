@@ -7,7 +7,7 @@ use SVG;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $AUTOLOAD);
 require Exporter;
 
-$VERSION = '0.33';
+$VERSION = '0.34';
 # $Id: SVG.pm,v 1.16 2009/05/10 14:07:17 todd Exp $
 
 # Conditional support for side-by-side raster generation. Off for now.
@@ -564,6 +564,7 @@ sub dashedLine { shift->_error('dashedLine'); }
 # The fill parameter is used internally as a simplification...
 sub rectangle {
   my ($self,$x1,$y1,$x2,$y2,$color_index,$fill) = @_;
+
   if ($color_index eq 'gdStyled' || $color_index eq 'gdBrushed') {
     my $fg = $self->_distill_gdSpecial($color_index);
     $self->rectangle($x1,$y1,$x2,$y2,$fg,$fill);
@@ -575,13 +576,15 @@ sub rectangle {
     # flip coordinates if they are "backwards"
     ($x1,$x2) = ($x2,$x1) if $x1 > $x2;
     ($y1,$y2) = ($y2,$y1) if $y1 > $y2;
-    my $result = 
-      $img->rectangle(x=>$x1,y=>$y1,
-		      width  =>$x2-$x1,
-		      height =>$y2-$y1,
-		      id     =>$id,
-		      style => $style,
-		     );
+    my @args = (
+	x      =>$x1,
+	y      =>$y1,
+	width  =>$x2-$x1,
+	height =>$y2-$y1,
+	id     =>$id,
+	style  => $style,
+	);
+    my $result = $img->rectangle(@args);
     $self->_reset();
     return $result;
   }
@@ -862,7 +865,7 @@ sub copy {
 
     # Fetch all elements of the source image
     my @elements = $source->img->getElements;
-    foreach my $element (@elements) {
+    foreach my $element (reverse @elements) {
 	my $att = $element->getAttributes();
 	# Points|rectangles|text, circles|ellipses, lines
 	my $x = $att->{x} || $att->{cx} || $att->{x1};
@@ -978,28 +981,91 @@ sub _copy_image {
 }
 
 
-
-
 ##################################################
 # Image Transformation Methods
 ##################################################
 
-# None implemented
+sub copyRotate90 {
+    return shift->_copyRotate(90);
+}
+
+sub copyRotate180 {
+    return shift->_copyRotate(180);
+}
+
+sub copyRotate270 {
+    return shift->_copyRotate(270);
+}
+
+sub copyRotate {
+    return shift->_copyRotate(shift());
+}
+
+sub _copyRotate {
+    my $self    = shift;
+    my $degrees = shift;
+    my $d2r     = 3.1416/180;
+    $degrees   %= 360;
+
+    my ($right,$down,$w,$h);
+
+    if ($degrees >= 0 && $degrees <= 90) {
+	$down  = 0;
+	$right = $self->{height} * sin ($degrees * $d2r);
+	$w     = $self->{width}*cos($degrees*$d2r)+$self->{height}*sin($degrees*$d2r);	
+	$h     = $self->{width}*sin($degrees*$d2r)+$self->{height}*cos($degrees*$d2r);
+    }
+
+    elsif ($degrees >  90  && $degrees <= 180) {
+	$down  =  $self->{height}* sin (($degrees-90) * $d2r);
+	$right = $self->{height} * cos(($degrees-90)*$d2r)
+	        +$self->{width}  * sin(($degrees-90)*$d2r);
+	$w     = $self->{width}  * sin(($degrees-90)*$d2r) + $self->{height} * sin((180-$degrees)*$d2r);
+	$h     = $self->{width}  * cos(($degrees-90)*$d2r) + $self->{height} * cos((180-$degrees)*$d2r);
+    }
+
+    elsif ($degrees >= 180 && $degrees <= 270) {
+	$down  = $self->{height} * sin((270-$degrees) * $d2r)
+	        +$self->{width}  * cos((270-$degrees) * $d2r);
+	$right = $self->{width}  * cos(($degrees-180)*$d2r);
+	$w     = $self->{height} * cos((270-$degrees)*$d2r) + $self->{width}*cos((180-$degrees)*$d2r);	
+	$h     = $self->{height} * sin((270-$degrees)*$d2r) + $self->{width}*cos((270-$degrees)*$d2r);
+    }
+
+    else {
+	$down  = $self->{width}  * cos(($degrees-270)*$d2r);
+	$right = 0;
+	$w     = $self->{height} * sin((360-$degrees)*$d2r) + $self->{width} *sin(($degrees-270)*$d2r);
+	$h     = $self->{width}  * cos(($degrees-270)*$d2r) + $self->{height}*cos((360-$degrees)*$d2r);
+    }
+
+    my $new     = ref($self)->new($w,$h);
+
+    my $group   = $new->img->group(transform => "translate($right,$down) rotate($degrees,0,0)");
+    for my $element (reverse $self->img->getElements) {
+	my %att = $element->getAttributes();
+	my $type = $element->getType;
+	next if $type eq 'svg';
+	$group->tag($type,%att);
+    }
+    $new->{colors} = {%{$self->{colors}}};
+    return $new;
+}
 
 ##################################################
 # Character And String Drawing
 ##################################################
 sub string {
-  my ($self,$font_obj,$x,$y,$text,$color_index) = @_;
-  my $img = $self->currentGroup;
-  my $id = $self->_create_id($x,$y);
-  my $formatting = $font_obj->formatting();
-  my $color = $self->_get_color($color_index);
-  my $result =
-    $img->text(
-	       id=>$id,
-	       x=>$x,
-	       y=>$y + $font_obj->{height} - GD::SVG::TEXT_KLUDGE,
+    my ($self,$font_obj,$x,$y,$text,$color_index) = @_;
+    my $img = $self->currentGroup;
+    my $id = $self->_create_id($x,$y);
+    my $formatting = $font_obj->formatting();
+    my $color = $self->_get_color($color_index);
+    my $result =
+	$img->text(
+	    id=>$id,
+	    x=>$x,
+	    y=>$y + $font_obj->{height} - GD::SVG::TEXT_KLUDGE,
 	       %$formatting,
 	       fill      => $color,
 	      )->cdata($text);
@@ -1061,6 +1127,14 @@ sub getBounds {
   my $width = $self->{width};
   my $height = $self->{height};
   return($width,$height);
+}
+
+sub width {
+    (shift->getBounds)[0];
+}
+
+sub height {
+    (shift->getBounds)[1];
 }
 
 sub isTrueColor { shift->_error('isTrueColor'); }
@@ -2020,15 +2094,21 @@ GD::SVG.
 
 =head2 Image Transfomation Commands
 
-None of the image transformation commands are implemented in GD::SVG.
-If your script calls one of the following methods, your script will
-die remorsefully with a warning.  With sufficient demand, I might try
-to implement some of these methods.  For now, I think that they are
-beyond the intent of GD::SVG.
+The following transformation commands are implemented:
 
   $image = $sourceImage->copyRotate90()
   $image = $sourceImage->copyRotate180()
   $image = $sourceImage->copyRotate270()
+
+In addition, a general copyRotate() method is implemented:
+
+  $image = $sourceImage->copyRotate($degrees)
+
+The image will be rotated to the left by $degrees pivoting at the
+topleft corner.
+
+The commands listed below are not implemented:
+
   $image = $sourceImage->copyFlipHorizontal()
   $image = $sourceImage->copyFlipVertical()
   $image = $sourceImage->copyTranspose()

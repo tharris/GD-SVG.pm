@@ -1,5 +1,8 @@
 Revision history for Perl extension GD::SVG.
 
+0.34  Tue Dec 22 14:43:32 EST 2009
+        - Added methods for copyRotate*() (Lincoln Stein)
+
 0.33  Sun May 10 04:14:12 MDT 2009
         - Can now embed pixmap information inside an SVG (Lincoln Stein)
         - Improvements to alpha support (Lincoln Stein)
