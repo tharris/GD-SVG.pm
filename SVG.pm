@@ -1120,7 +1120,7 @@ sub saveAlpha     { shift->_error('saveAlpha'); }
 ##################################################
 # Miscellaneous Image Methods
 ##################################################
-sub interlaced { shift->_error('inerlaced'); }
+sub interlaced { shift->_error('interlaced'); }
 
 sub getBounds {
   my $self = shift;
